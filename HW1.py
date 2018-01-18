@@ -4,7 +4,6 @@ import matplotlib
 #Problem 1a
 alpha = 1
 ccenter1 = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-#ccenter2 = [5, 9, 2, 8, 3, 7, 4, 6, 1]
 ccenter2 = [3, 2.5, 1, 6, 4.5, 4, 9, 8.5, 7]
 
 N = 10000
@@ -32,9 +31,6 @@ sw2 = find_sw(set2, m2)
 sw = sw1 + sw2
 weights = np.dot(np.linalg.inv(sw), (m2-m1))
 
-print "weights"
-print (weights)
-
 set_all = np.concatenate((set1, set2))
 m = np.zeros(9)
 for i in range(0, 9):
@@ -43,16 +39,64 @@ bias = np.dot(m, weights)
 print "bias"
 print bias
 
-set_test1 = np.random.multivariate_normal(ccenter1, cov, N/4)
-set_test2 = np.random.multivariate_normal(ccenter2, cov, N/4)
-num_errors = 0.0
+print "weights before training"
+print weights
+
+#Problem 1c
+test_ratio = .5
+learning_rate = 0.01
+set_test1 = np.random.multivariate_normal(ccenter1, cov, (int)(N*(test_ratio/2)))
+set_test2 = np.random.multivariate_normal(ccenter2, cov, (int)(N*(test_ratio/2)))
+
+ne1 = 0
+ne2 = 0
 print "results for test set"
-for row in set_test1:
-	x = (np.dot(row, weights))
-	if (x - bias > 0):
-		num_errors +=1
-for row in set_test2:
-	x = (np.dot(row, weights))
-	if (x - bias < 0):
-		num_errors += 1
-print "error rate:" + str(num_errors/(N/2))
+for i in range((int)(N*test_ratio)):
+	if (i % 2 == 0):
+		row = set_test1[i/2]
+		x = (np.dot(row, weights))
+		if (x - bias >= 0):
+			ne1 +=1
+			for i in range(9):
+				weights[i] -= row[i] * weights[i] * learning_rate
+
+	else:
+		row = set_test2[i/2]
+		x = (np.dot(row, weights))
+		if (x - bias < 0):
+			ne2 += 1
+			for i in range(9):
+				weights[i] += row[i] * weights[i] * learning_rate
+print "num errors after test1"
+print ne1
+print "num errors after test2"
+print ne2
+print "error rate:" + str((ne1+ne2)/(N*test_ratio))
+
+bias = np.dot(m, weights)
+print "\nnew bias"
+print bias
+
+print "new weights"
+print weights
+
+ne1 = 0
+ne2 = 0
+print "results for test set"
+for i in range((int)(N*test_ratio)):
+	if (i % 2 == 0):
+		row = set_test1[i/2]
+		x = (np.dot(row, weights))
+		if (x - bias >= 0):
+			ne1 +=1
+
+	else:
+		row = set_test2[i/2]
+		x = (np.dot(row, weights))
+		if (x - bias < 0):
+			ne2 += 1
+print "num errors after test1"
+print ne1
+print "num errors after test2"
+print ne2
+print "error rate:" + str((ne1+ne2)/(N*test_ratio))
