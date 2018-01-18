@@ -6,6 +6,9 @@ alpha = 1
 ccenter1 = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 ccenter2 = [3, 2.5, 1, 6, 4.5, 4, 9, 8.5, 7]
 
+ccenter1 = [1, 0, 0, 0, 0, 0, 0, 1, 0]
+ccenter2 = [0, 0, 1, 0, 0, 1, 0, 0, 0]
+
 N = 10000
 cov = np.identity(9) * alpha
 set1 = np.random.multivariate_normal(ccenter1, cov, N)
@@ -44,19 +47,38 @@ print weights
 
 #Problem 1c
 test_ratio = .5
-learning_rate = 0.01
+learning_rate = 0.00001
 set_test1 = np.random.multivariate_normal(ccenter1, cov, (int)(N*(test_ratio/2)))
 set_test2 = np.random.multivariate_normal(ccenter2, cov, (int)(N*(test_ratio/2)))
 
 ne1 = 0
 ne2 = 0
-print "results for test set"
+print "results for test set before learning"
 for i in range((int)(N*test_ratio)):
 	if (i % 2 == 0):
 		row = set_test1[i/2]
 		x = (np.dot(row, weights))
 		if (x - bias >= 0):
-			ne1 +=1
+			ne1 += 1
+
+	else:
+		row = set_test2[i/2]
+		x = (np.dot(row, weights))
+		if (x - bias < 0):
+			ne2 += 1
+
+print "num errors after test1"
+print ne1
+print "num errors after test2"
+print ne2
+print "error rate:" + str((ne1+ne2)/(N*test_ratio))
+
+# learning step
+for i in range((int)(N*test_ratio)):
+	if (i % 2 == 0):
+		row = set_test1[i/2]
+		x = (np.dot(row, weights))
+		if (x - bias >= 0):
 			for i in range(9):
 				weights[i] -= row[i] * weights[i] * learning_rate
 
@@ -64,16 +86,10 @@ for i in range((int)(N*test_ratio)):
 		row = set_test2[i/2]
 		x = (np.dot(row, weights))
 		if (x - bias < 0):
-			ne2 += 1
 			for i in range(9):
 				weights[i] += row[i] * weights[i] * learning_rate
-print "num errors after test1"
-print ne1
-print "num errors after test2"
-print ne2
-print "error rate:" + str((ne1+ne2)/(N*test_ratio))
 
-bias = np.dot(m, weights)
+#bias = np.dot(m, weights)
 print "\nnew bias"
 print bias
 
@@ -82,7 +98,7 @@ print weights
 
 ne1 = 0
 ne2 = 0
-print "results for test set"
+print "results for test set after learning"
 for i in range((int)(N*test_ratio)):
 	if (i % 2 == 0):
 		row = set_test1[i/2]
