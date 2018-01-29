@@ -129,12 +129,22 @@ def build_model(x, t, v_x, v_t, N, M, K, learning_rate, eps):
     return (W1, W2, b1, b2)
 
 def test_model(W1, W2, b1, b2, x, t):
-    return 0
+    a1 = np.dot(x, W1)+b1
+    z1 = np.tanh(a1)
+    a2 = np.dot(z1, W2)+b2
+    exp_scores = np.exp(a2)
+    z2 = exp_scores / np.sum(exp_scores, axis=1, keepdims=True)
+    z2 = np.around(z2) #round to [0, 1] or [1, 0]
+    num_errors = 0.0
+    for i in range(len(t)):
+	if (z2[i][0] != t[i][0] or z2[i][1] != t[i][1]):
+		num_errors += 1
+    return (num_errors/len(t))*100
 
 
 if __name__ == "__main__":
     
-    N = 200
+    N = 2000
     alpha = 1.0
     learning_rate = 0.1
 
@@ -147,4 +157,4 @@ if __name__ == "__main__":
 
     #print t_1a
     (W1, W2, b1, b2) = build_model(x_1a, t_1a, v_x_1a,  v_t_1a,  2,10,2, learning_rate, 0.01)
-
+    print(test_model(W1, W2, b1, b2, t_x_1a, t_t_1a))
