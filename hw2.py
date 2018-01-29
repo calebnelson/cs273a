@@ -83,13 +83,12 @@ def test_model(W1, W2, b1, b2, x, t):
     a2 = np.dot(z1, W2)+b2
     exp_scores = np.exp(a2)
     z2 = exp_scores / np.sum(exp_scores, axis=1, keepdims=True)
-    z2 = np.around(z2) #round to [0, 1] or [1, 0]
+    rounded_z2 = np.around(z2).astype(int) #round to [0, 1] or [1, 0]
     num_errors = 0.0
     for i in range(len(t)):
-	if (z2[i][0] != t[i][0] or z2[i][1] != t[i][1]):
+	if (not np.all(rounded_z2[i] == t[i])):
 		num_errors += 1
     return (num_errors/len(t))*100
-
 
 if __name__ == "__main__":
     
