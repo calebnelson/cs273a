@@ -57,7 +57,7 @@ def create_inputs_1b(means, classes, alphas, Ns):
     return input_mat, training_classes_mat, classes_mat
 
 if __name__ == "__main__":
-    N = 2000
+    N = 10000
     alpha = 1.0
     cluster_center1 = [1, 2]
     class1_radius = 0.5

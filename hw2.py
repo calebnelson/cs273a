@@ -30,7 +30,7 @@ def build_model(x, t, v_x, v_t, N, M, K, learning_rate, eps, target_accuracy, ta
         total_cross_entropy = 0
         iter += 1
         #start training, break if the target accuracy has be achieved
-        for i in range(0, len(x)):
+        for i in np.random.permutation(len(x)):
             a1 = np.dot(x[i], W1)+b1
             z1 = np.tanh(a1)
             a2 = np.dot(z1, W2)+b2
@@ -92,10 +92,10 @@ def test_model(W1, W2, b1, b2, x, t):
 
 if __name__ == "__main__":
     
-    learning_rate = 0.05
+    learning_rate = 0.01
     epsilon = 0.01
-    target_accuracy = 0.01
-    target_iter = 500
+    target_accuracy = 0.03
+    target_iter = 100
 
     x_1a, t_1a, plot_classes_1a = get_inputs("hw2_train_1a.npz")
     v_x_1a, v_t_1a, v_plot_classes_1a = get_inputs("hw2_validation_1a.npz")
