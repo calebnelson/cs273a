@@ -126,8 +126,11 @@ if __name__ == "__main__":
     plt.imshow(W2, cmap='hot')
     plt.figure();
     plt.scatter(x=x_1b[:,0], y=x_1b[:,1], s=20, c=plot_classes_1b)
-    print("Error rate for 1b: " + str(test_model(W1, W2, b1, b2, t_x_1a, t_t_1a)*100) + "%")
+    print("Error rate for 1b: " + str(test_model(W1, W2, b1, b2, t_x_1b, t_t_1b)*100) + "%")
 
+
+    cluster_2 = [.1,.5,.5,.1,.1, .6,.1,.5,.5,.0, .1,.8,.9,.1,.0, .1,.0,.1,.1,.0, .2,.3,.4,.5,.6, .1,.5,.5,.1,.1, .6,.1,.5,.5,.0]
+    cluster_1 = [.1,.4,.2,.1,.0, .6,.1,.3,.5,.0, .1,.8,.9,.0,.0, .1,.0,.1,.1,.0, .2,.3,.6,.5,.0, .1,.5,.4,.1,.8, .6,.1,.3,.5,.0]
     (W1, W2, b1, b2) = build_model(x_2, t_2, v_x_2,  v_t_2, 35,neurons,2, learning_rate, epsilon, target_accuracy, target_iter)
     plt.figure()
     plt.imshow(W1, cmap='hot')
@@ -138,5 +141,5 @@ if __name__ == "__main__":
     plt.figure();
     plt.imshow(np.reshape(cluster_2, (5,7)))
 
+    print("Error rate for 2: " + str(test_model(W1, W2, b1, b2, t_x_2, t_t_2)*100) + "%")
     plt.show()
-    print("Error rate for 2: " + str(test_model(W1, W2, b1, b2, t_x_1a, t_t_1a)*100) + "%")
