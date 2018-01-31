@@ -92,14 +92,51 @@ def test_model(W1, W2, b1, b2, x, t):
 
 if __name__ == "__main__":
     
-    learning_rate = 0.01
+    learning_rate = 0.001
     epsilon = 0.01
-    target_accuracy = 0.03
+    target_accuracy = 0.025
     target_iter = 100
+    neurons = 10
 
     x_1a, t_1a, plot_classes_1a = get_inputs("hw2_train_1a.npz")
     v_x_1a, v_t_1a, v_plot_classes_1a = get_inputs("hw2_validation_1a.npz")
     t_x_1a, t_t_1a, t_plot_classes_1a = get_inputs("hw2_test_1a.npz")
 
+    x_1b, t_1b, plot_classes_1b = get_inputs("hw2_train_1b.npz")
+    v_x_1b, v_t_1b, v_plot_classes_1b = get_inputs("hw2_validation_1b.npz")
+    t_x_1b, t_t_1b, t_plot_classes_1b = get_inputs("hw2_test_1b.npz")
+
+    x_2, t_2, plot_classes_2 = get_inputs("hw2_train_2.npz")
+    v_x_2, v_t_2, v_plot_classes_2 = get_inputs("hw2_validation_2.npz")
+    t_x_2, t_t_2, t_plot_classes_2 = get_inputs("hw2_test_2.npz")
+
     (W1, W2, b1, b2) = build_model(x_1a, t_1a, v_x_1a,  v_t_1a,  2,10,2, learning_rate, epsilon, target_accuracy, target_iter)
-    print("Error rate: " + str(test_model(W1, W2, b1, b2, t_x_1a, t_t_1a)*100) + "%")
+    plt.figure()
+    plt.imshow(W1, cmap='hot')
+    plt.figure()
+    plt.imshow(W2, cmap='hot')
+    plt.figure()
+    plt.scatter(x=x_1a[:,0], y=x_1a[:,1], s=20, c=plot_classes_1a)
+    print("Error rate for 1a: " + str(test_model(W1, W2, b1, b2, t_x_1a, t_t_1a)*100) + "%")
+
+    (W1, W2, b1, b2) = build_model(x_1b, t_1b, v_x_1b,  v_t_1b,  2,10,2, learning_rate, epsilon, target_accuracy, target_iter)
+    plt.figure()
+    plt.imshow(W1, cmap='hot')
+    plt.figure()
+    plt.imshow(W2, cmap='hot')
+    plt.figure();
+    plt.scatter(x=x_1b[:,0], y=x_1b[:,1], s=20, c=plot_classes_1b)
+    print("Error rate for 1b: " + str(test_model(W1, W2, b1, b2, t_x_1a, t_t_1a)*100) + "%")
+
+    (W1, W2, b1, b2) = build_model(x_2, t_2, v_x_2,  v_t_2, 35,neurons,2, learning_rate, epsilon, target_accuracy, target_iter)
+    plt.figure()
+    plt.imshow(W1, cmap='hot')
+    plt.figure()
+    plt.imshow(W2, cmap='hot')
+    plt.figure();
+    plt.imshow(np.reshape(cluster_1, (5,7)))
+    plt.figure();
+    plt.imshow(np.reshape(cluster_2, (5,7)))
+
+    plt.show()
+    print("Error rate for 2: " + str(test_model(W1, W2, b1, b2, t_x_1a, t_t_1a)*100) + "%")
