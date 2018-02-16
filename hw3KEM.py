@@ -8,13 +8,12 @@ def get_inputs(filename):
 
 '''
 x is the vector of inputs
-N is the dimension of the vectors
+D is the dimension of the vectors
 K is the number of clusters
 '''
-def Kmeans(x, N, K, max_iter):
+def Kmeans(x, D, K, max_iter):
 	#initialize the means to random values
-	clusters = np.random.randn(K, N)/np.sqrt(K)
-	iter = 0
+	clusters = np.random.randn(K, D)
 	while(True):
 		cluster_assignments = [[] for i in range(K)]
 		#assignment step
@@ -40,6 +39,49 @@ def Kmeans(x, N, K, max_iter):
 
 		#print "After iter " + str(iter)
 	return clusters
+
+'''
+x is the vector of inputs
+D is the dimension of the vectors
+K is the number of clusters
+'''
+def EM(x, D, K, max_iter):
+	N = len(x) #N is the number of training examples
+	means = np.random.randn(K, D)
+	covs = np.random.randn(K, D, D)
+	mixings = np.full(K, 1.0/K)
+	weights = np.zeros((K, N))_
+	iter = 0
+	while(True):
+		iter += 1
+		
+		#E step
+		for ni in range(N):
+			for ki in range(K):
+				weights[ki][ni] = mixings[ki] * multivariate_normal.pdf(x[ni], mean= means[ki], cov = covs[ki])
+			weights[ki] /= np.sum(weights[ki])
+
+		Nk = np.zeros(K)
+		for ki in range(K):
+			Nk[ki] = np.sum(weights[ki])
+
+		#M step
+		mixings = np.divide(Nk,N)
+		means = np.dot(weights, x)
+		for ki in range(K):
+			means[ki] = np.divide(means[ki], Nk[ki])
+
+		for ki in range(K):
+			covs[ki] = np.zeros((D, D))
+			for ni in range(N):
+				arr = np.array(x[ni] - means[ki]).reshape(D, 1)
+				covs[ki] += np.dot(weights[ki][ni], np.dot(arr, arr.T))
+			covs[ki] = np.divide(covs[ki], Nk[ki])
+
+
+
+
+
 
 if __name__ == '__main__':
 
