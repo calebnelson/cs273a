@@ -44,13 +44,14 @@ def Kmeans(x, D, K, max_iter):
 x is the vector of inputs
 D is the dimension of the vectors
 K is the number of clusters
+sc is the stopping criterion
 '''
-def EM(x, D, K, max_iter):
+def EM(x, D, K, max_iter, sc):
 	N = len(x) #N is the number of training examples
 	means = np.random.randn(K, D)
 	covs = np.random.randn(K, D, D)
 	mixings = np.full(K, 1.0/K)
-	weights = np.zeros((K, N))_
+	weights = np.random.randn(K, N)
 	iter = 0
 	while(True):
 		iter += 1
@@ -78,8 +79,22 @@ def EM(x, D, K, max_iter):
 				covs[ki] += np.dot(weights[ki][ni], np.dot(arr, arr.T))
 			covs[ki] = np.divide(covs[ki], Nk[ki])
 
+		#log-likelihood
+		previous_logl = logl
+		logl = 0
+		for ni in range(N):
+			loglk = 0
+			for ki in range(K):
+				loglk += mixings[ki] * multivariate_normal.pdf(x[ni], mean= means[ki], cov = covs[ki])
+			logl += np.log(loglk)
+		if (np.absolute(previous_logl, logl) < sc):
+			print "stopping criterion met after " + str(iter) + "iterations"
+			break
+		if (iter > max_iter):
+			print "max iterations reached"
+			break
 
-
+	return means, covs
 
 
 
