@@ -14,6 +14,7 @@ K is the number of clusters
 def Kmeans(x, D, K, max_iter):
 	#initialize the means to random values
 	clusters = np.random.randn(K, D)
+	iter = 0
 	while(True):
 		cluster_assignments = [[] for i in range(K)]
 		#assignment step
