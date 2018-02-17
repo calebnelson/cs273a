@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+from scipy.stats import multivariate_normal
 import numpy as np
 import matplotlib 
 
@@ -42,34 +43,37 @@ def Kmeans(x, D, K, max_iter):
 	return clusters
 
 '''
-x is the vector of inputs
+x is the vector of inputs (N x D)
 D is the dimension of the vectors
 K is the number of clusters
 sc is the stopping criterion
 '''
 def EM(x, D, K, max_iter, sc):
 	N = len(x) #N is the number of training examples
-	means = np.random.randn(K, D)
-	covs = np.random.randn(K, D, D)
+	means = Kmeans(x, D, K, max_iter)
+	weights = np.random.randn(N, K)
+	covs = np.zeros((K, D, D))
+	for ki in range(K):
+		covs[ki] = np.identity(D)
 	mixings = np.full(K, 1.0/K)
-	weights = np.random.randn(K, N)
 	iter = 0
+	logl = 0
 	while(True):
 		iter += 1
 		
 		#E step
 		for ni in range(N):
 			for ki in range(K):
-				weights[ki][ni] = mixings[ki] * multivariate_normal.pdf(x[ni], mean= means[ki], cov = covs[ki])
-			weights[ki] /= np.sum(weights[ki])
+				weights[ni][ki] = mixings[ki] * multivariate_normal.pdf(x[ni], mean= means[ki], cov = covs[ki])
+			weights[ni] /= np.sum(weights[ni])
 
 		Nk = np.zeros(K)
 		for ki in range(K):
-			Nk[ki] = np.sum(weights[ki])
+			Nk[ki] = np.sum(weights.T[ki])
 
 		#M step
 		mixings = np.divide(Nk,N)
-		means = np.dot(weights, x)
+		means = np.dot(weights.T, x)
 		for ki in range(K):
 			means[ki] = np.divide(means[ki], Nk[ki])
 
@@ -77,7 +81,7 @@ def EM(x, D, K, max_iter, sc):
 			covs[ki] = np.zeros((D, D))
 			for ni in range(N):
 				arr = np.array(x[ni] - means[ki]).reshape(D, 1)
-				covs[ki] += np.dot(weights[ki][ni], np.dot(arr, arr.T))
+				covs[ki] += np.dot(weights[ni][ki], np.dot(arr, arr.T))
 			covs[ki] = np.divide(covs[ki], Nk[ki])
 
 		#log-likelihood
@@ -88,8 +92,10 @@ def EM(x, D, K, max_iter, sc):
 			for ki in range(K):
 				loglk += mixings[ki] * multivariate_normal.pdf(x[ni], mean= means[ki], cov = covs[ki])
 			logl += np.log(loglk)
-		if (np.absolute(previous_logl, logl) < sc):
-			print "stopping criterion met after " + str(iter) + "iterations"
+		print "Log-Likelihood is " + str(logl)		
+		print "Diff from previous LogL " + str(previous_logl - logl)
+		if (np.absolute(previous_logl - logl) < sc):
+			print "stopping criterion met after " + str(iter) + " iterations"
 			break
 		if (iter > max_iter):
 			print "max iterations reached"
@@ -102,14 +108,15 @@ def EM(x, D, K, max_iter, sc):
 if __name__ == '__main__':
 
 	x_1a, t_1a, plot_classes_1a = get_inputs("hw2_train_1a.npz")
-	clusters = Kmeans(x_1a, 2, 2, 200)
-	print clusters
+	#clusters = Kmeans(x_1a, 2, 2, 200)
+	#print clusters
 
 	x_1b, t_1b, plot_classes_1b = get_inputs("hw2_train_1b.npz")
-	clusters = Kmeans(x_1b, 2, 2, 200)
-	print clusters
+	#clusters = Kmeans(x_1b, 2, 2, 200)
+	#print clusters
 
 	x_2, t_2, plot_classes_2 = get_inputs("hw2_train_2.npz")
-	clusters = Kmeans(x_2, 35, 2, 200)
-	print clusters
+	#clusters = Kmeans(x_2, 35, 2, 200)
+	#print clusters
 	
+	means, covs = EM(x_1a, 2, 2, 200, 0.01)
