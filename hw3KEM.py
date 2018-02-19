@@ -106,17 +106,6 @@ def EM(x, D, K, max_iter, sc):
 
 
 if __name__ == '__main__':
-
-	x_1a, t_1a, plot_classes_1a = get_inputs("hw2_train_1a.npz")
-	#clusters = Kmeans(x_1a, 2, 2, 200)
-	#print clusters
-
-	x_1b, t_1b, plot_classes_1b = get_inputs("hw2_train_1b.npz")
-	#clusters = Kmeans(x_1b, 2, 2, 200)
-	#print clusters
-
-	x_2, t_2, plot_classes_2 = get_inputs("hw2_train_2.npz")
-
 	x1, x2, t1, t2 = get_inputs("hw3_train.npz")
 	x = np.concatenate((x1, x2), axis = 0)
 	clusters = Kmeans(x, 36, 2 ,200)
