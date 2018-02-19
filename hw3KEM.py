@@ -116,7 +116,11 @@ if __name__ == '__main__':
 	#print clusters
 
 	x_2, t_2, plot_classes_2 = get_inputs("hw2_train_2.npz")
-	#clusters = Kmeans(x_2, 35, 2, 200)
-	#print clusters
-	
+
+	x1, x2, t1, t2 = get_inputs("hw3_train.npz")
+	x = np.concatenate((x1, x2), axis = 0)
+	clusters = Kmeans(x, 36, 2 ,200)
+	print "K-Means clusters: " + str(clusters)
 	means, covs = EM(x_1a, 2, 2, 200, 0.01)
+	print "EM means: " + str(means)
+	print "EM covariance matricies" + str(covs)
