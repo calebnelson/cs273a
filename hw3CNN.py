@@ -120,9 +120,9 @@ def build_model(x, t, H, W, K, kernel_dim, num_kernels, pooling_dim, hidden_dim,
 
     for iter in range(max_iter):    
         
-        total_error = 0.0
         prev_total_error = total_error
-        #one pass of model training using stochastic gradient descend
+	total_error = 0.0        
+	#one pass of model training using stochastic gradient descend
         for i in np.random.permutation(len(train_x)):
             #forward propagation
             #1 convolutional layer with one kernel
@@ -133,7 +133,7 @@ def build_model(x, t, H, W, K, kernel_dim, num_kernels, pooling_dim, hidden_dim,
             z1_max_maps = np.zeros((num_kernels, a1_H, a1_W))
             
             for k in range(num_kernels):
-                a1s[k]= A1(train_x[i], kernel_dim, kernels[k], kernel_bs[k])
+                a1s[k]= A1(train_x[i], kernel_dim, kernels[k], kernel_bias[k])
                 z1s[k]= np.maximum(a1s[k], 0)
                 a2s[k], z1_max_maps[k] = A2(z1s[k], pooling_dim)
                 z2s[k]= np.reshape(a2s[k], z2_D)
@@ -147,8 +147,8 @@ def build_model(x, t, H, W, K, kernel_dim, num_kernels, pooling_dim, hidden_dim,
             a3 = np.dot(z2combined, W3)+b3
             z3 = np.tanh(a3)
             a4 = np.dot(z3, W4)+b4
-            y = softmax(a4) 
-          
+            y = softmax(a4)
+
             #backward propagation
             delta_4 = y - train_t[i]
             delta_3 = (1 - np.power(z3, 2)) * (np.dot(delta_4, W4.T)) 
@@ -159,27 +159,27 @@ def build_model(x, t, H, W, K, kernel_dim, num_kernels, pooling_dim, hidden_dim,
             dW4 = np.outer(z3, delta_4)
             dW3 = np.outer(z2combined, delta_3)
             W4 -= learning_rate*dW4
-            W3 -= learning_rate*dW3  #update the the error fucnction as well lambda*w1^2numpy.random.rand¶ 
+            W3 -= learning_rate*dW3
             db4 = delta_4
             db3 = delta_3
             b3 -= learning_rate*db3
             b4 -= learning_rate*db4
             
             dkernels = np.zeros((num_kernels, kernel_dim, kernel_dim))
-            dkernel_bs = np.zeros((num_kernels, a1_H, a1_W))
+            dkernel_bias = np.zeros((num_kernels, a1_H, a1_W))
             
             for k in range(num_kernels):
                 dkernels[k] = dkernel(delta_ks[k], train_x[i], kernel_dim)
-                kernels[k] -= learning_rate*dkernels[k] - reg_lambda*kernels[k]
-                dkernel_bs[k] = delta_ks[k]
-                kernel_bs[k] -= learning_rate*dkernel_bs[k]
+                kernels[k] -= learning_rate*dkernels[k]
+                dkernel_bias[k] = delta_ks[k]
+                kernel_bias[k] -= learning_rate*dkernel_bias[k]
         
             total_error += 0.5*np.dot(np.asarray(y - train_t[i]), np.asarray(y - train_t[i]).T)[0,0]
         
         print('iteration ', iter, 'total_error is ', total_error, 'prev_total_error', prev_total_error)
-    return kernels, kernel_bs, W3, b3, W4, b4
+    return kernels, kernel_bias, W3, b3, W4, b4
 
-def test_model(test_x, test_t, num_kernels, kernel_dim, pooling_dim, kernels, kernels_bs, W3, b3, W4, b4):
+def test_model(test_x, test_t, num_kernels, kernel_dim, pooling_dim, kernels, kernels_bias, W3, b3, W4, b4):
     num_errors = 0.0
     a1_H = H - kernel_dim + 1
     a1_W = W - kernel_dim + 1
@@ -195,7 +195,7 @@ def test_model(test_x, test_t, num_kernels, kernel_dim, pooling_dim, kernels, ke
         z1_max_maps = np.zeros((num_kernels, a1_H, a1_W))
 
         for k in range(num_kernels):
-            a1s[k]= A1(test_x[i], kernel_dim, kernels[k], kernel_bs[k])
+            a1s[k]= A1(test_x[i], kernel_dim, kernels[k], kernel_bias[k])
             z1s[k]= np.maximum(a1s[k], 0)
             a2s[k], z1_max_maps[k] = A2(z1s[k], pooling_dim)
             z2s[k]= np.reshape(a2s[k], z2_D)
@@ -221,23 +221,23 @@ if __name__ == "__main__":
     
     H = 6
     W = 6
-    M = 24
-    C = 2
+    K = 2
     kernel_dim = 3
     num_kernels = 3
     pooling_dim  = 2
+    hidden_dim = 24
     learning_rate = 0.05
     max_iter = 10
+
     train_x1, train_x2, train_t1, train_t2 = get_inputs("hw3_train.npz")
     test_x1, test_x2, test_t1, test_t2 = get_inputs("hw3_test.npz")
-
     train_x = np.concatenate((train_x1, train_x2), axis=0)
     train_t = np.concatenate((train_t1, train_t2), axis=0)
     test_x = np.concatenate((test_x1, test_x2), axis=0)
     test_t = np.concatenate((test_t1, test_t2), axis=0)
 
-    kernels, kernel_bs, W3, b3, W4, b4 = build_model(train_x, train_t, H, W, M, C, kernel_dim, num_kernels, pooling_dim, learning_rate, max_iter)
-    train_errors = test_model(train_x, train_t, num_kernels, kernel_dim, pooling_dim, kernels, kernel_bs, W3, b3, W4, b4)
-    test_errors = test_model(test_x, test_t, num_kernels, kernel_dim, pooling_dim, kernels, kernel_bs, W3, b3, W4, b4)
+    kernels, kernel_bias, W3, b3, W4, b4 = build_model(train_x, train_t, H, W, K, kernel_dim, num_kernels, pooling_dim, hidden_dim, learning_rate, max_iter)
+    train_errors = test_model(train_x, train_t, num_kernels, kernel_dim, pooling_dim, kernels, kernel_bias, W3, b3, W4, b4)
+    test_errors = test_model(test_x, test_t, num_kernels, kernel_dim, pooling_dim, kernels, kernel_bias, W3, b3, W4, b4)
     print "train error rate: " + str(train_errors)
     print "test error rate: " + str(test_errors) 

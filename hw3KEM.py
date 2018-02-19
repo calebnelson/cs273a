@@ -5,7 +5,7 @@ import matplotlib
 
 def get_inputs(filename):
     arrays = np.load(filename)
-    return arrays['x'], arrays['t'], arrays['classes']
+    return arrays['x1'], arrays['x2'], arrays['t1'], arrays['t2']
 
 '''
 x is the vector of inputs
@@ -47,10 +47,11 @@ x is the vector of inputs (N x D)
 D is the dimension of the vectors
 K is the number of clusters
 sc is the stopping criterion
+kmeans is the starting point for the means
 '''
-def EM(x, D, K, max_iter, sc):
+def EM(x, D, K, max_iter, sc, kmeans):
 	N = len(x) #N is the number of training examples
-	means = Kmeans(x, D, K, max_iter)
+	means = kmeans
 	weights = np.random.randn(N, K)
 	covs = np.zeros((K, D, D))
 	for ki in range(K):
@@ -108,8 +109,9 @@ def EM(x, D, K, max_iter, sc):
 if __name__ == '__main__':
 	x1, x2, t1, t2 = get_inputs("hw3_train.npz")
 	x = np.concatenate((x1, x2), axis = 0)
+	x = np.reshape(x,(np.size(x,0), (np.size(x,1)*np.size(x,2))))
 	clusters = Kmeans(x, 36, 2 ,200)
 	print "K-Means clusters: " + str(clusters)
-	means, covs = EM(x_1a, 2, 2, 200, 0.01)
+	means, covs = EM(x, 36, 2, 200, 0.01, clusters)
 	print "EM means: " + str(means)
 	print "EM covariance matricies" + str(covs)
