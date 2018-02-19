@@ -18,6 +18,17 @@ def generate_inputs(mean1, mean2, alpha, N):
     
     return result_x1, result_x2, t1, t2
 
+def generate_inputs_KEM(mean1, mean2, alpha, N):
+    dim = np.size(mean1, axis=0)
+    cov_mat = np.identity(dim) * alpha
+
+    x1 = np.random.multivariate_normal(mean1, cov_mat, N)
+    t1 = np.full((N, 2), [1, 0])
+    x2 = np.random.multivariate_normal(mean2, cov_mat, N)
+    t2 = np.full((N, 2), [0, 1])
+    
+    return x1, x2, t1, t2
+
 if __name__ == '__main__':
     mean1 = np.array(
     [0.5, 1, 1, 1, 1, .5, 
@@ -42,3 +53,8 @@ if __name__ == '__main__':
     np.savez("hw3_train", x1=x1, x2=x2, t1=t1, t2=t2)
     x1, x2, t1, t2 = generate_inputs(mean1, mean2, alpha, 200)
     np.savez("hw3_test", x1=x1, x2=x2, t1=t1, t2=t2)
+
+    mean1 = np.array([5, -1, 3])
+    mean2 = np.array([2, 1, -1])
+    x1, x2, t1, t2 = generate_inputs_KEM(mean1, mean2, alpha, 2000)
+    np.savez("hw3_KEM", x1=x1, x2=x2, t1=t1, t2=t2)

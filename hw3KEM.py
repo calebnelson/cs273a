@@ -107,11 +107,11 @@ def EM(x, D, K, max_iter, sc, kmeans):
 
 
 if __name__ == '__main__':
-	x1, x2, t1, t2 = get_inputs("hw3_train.npz")
+	x1, x2, t1, t2 = get_inputs("hw3_KEM.npz")
 	x = np.concatenate((x1, x2), axis = 0)
-	x = np.reshape(x,(np.size(x,0), (np.size(x,1)*np.size(x,2))))
-	clusters = Kmeans(x, 36, 2 ,200)
+	#x = np.reshape(x,(np.size(x,0), (np.size(x,1)*np.size(x,2))))
+	clusters = Kmeans(x, 3, 2 ,200)
 	print "K-Means clusters: " + str(clusters)
-	means, covs = EM(x, 36, 2, 200, 0.01, clusters)
+	means, covs = EM(x, 3, 2, 200, 0.01, clusters)
 	print "EM means: " + str(means)
 	print "EM covariance matricies" + str(covs)
